@@ -300,7 +300,6 @@ const drawSvg = async (
   currentUploadRef: React.RefObject<number | undefined>,
   currentDownloadRef: React.RefObject<number | undefined>
 ): Promise<void> => {
-  if (upload === currentUploadRef.current && download === currentDownloadRef.current) return
   currentUploadRef.current = upload
   currentDownloadRef.current = download
   const svg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 36"><image height="36" width="36" href="${trayIconBase64}"/><text x="156" y="15" font-size="18" font-family="PingFang SC" font-weight="bold" text-anchor="end" fill="black">${calcTraffic(upload)}/s</text><text x="156" y="34" font-size="18" font-family="PingFang SC" font-weight="bold" text-anchor="end" fill="black">${calcTraffic(download)}/s</text></svg>`
