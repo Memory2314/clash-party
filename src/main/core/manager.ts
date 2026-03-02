@@ -104,21 +104,17 @@ export function cleanupCoreWatcher(): void {
   }
 }
 
-// 动态生成 IPC 路径
+// 生成 IPC 路径
 export const getMihomoIpcPath = (): string => {
   if (process.platform === 'win32') {
     const isAdmin = getSessionAdminStatus()
-    const sessionId = process.env.SESSIONNAME || process.env.USERNAME || 'default'
-    const processId = process.pid
-
     return isAdmin
-      ? `\\\\.\\pipe\\MihomoParty\\mihomo-admin-${sessionId}-${processId}`
-      : `\\\\.\\pipe\\MihomoParty\\mihomo-user-${sessionId}-${processId}`
+      ? '\\\\.\\pipe\\MihomoParty\\mihomo-admin'
+      : '\\\\.\\pipe\\MihomoParty\\mihomo-user'
   }
 
-  const uid = process.getuid?.() || 'unknown'
-  const processId = process.pid
-  return `/tmp/mihomo-party-${uid}-${processId}.sock`
+  const uid = process.getuid?.() || 0
+  return uid === 0 ? '/tmp/mihomo-party-admin.sock' : `/tmp/mihomo-party-${uid}.sock`
 }
 
 // 核心配置接口

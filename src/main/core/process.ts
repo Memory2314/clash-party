@@ -20,36 +20,30 @@ export async function cleanupSocketFile(): Promise<void> {
 }
 
 export async function cleanupWindowsNamedPipes(): Promise<void> {
+  // 用 tasklist 替代 PowerShell ConvertTo-Json，兼容 Win7（默认 PS 2.0 没有 ConvertTo-Json）
+  const mihomoExecutables = ['mihomo.exe', 'mihomo-alpha.exe', 'mihomo-smart.exe']
   try {
-    try {
-      const { stdout } = await execPromise(
-        `powershell -NoProfile -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Get-Process | Where-Object {$_.ProcessName -like '*mihomo*'} | Select-Object Id,ProcessName | ConvertTo-Json"`,
-        { encoding: 'utf8' }
-      )
-
-      if (stdout.trim()) {
-        managerLogger.info(`Found potential pipe-blocking processes: ${stdout}`)
-
-        try {
-          const processes = JSON.parse(stdout)
-          const processArray = Array.isArray(processes) ? processes : [processes]
-
-          for (const proc of processArray) {
-            const pid = proc.Id
-            if (pid && pid !== process.pid) {
+    for (const executable of mihomoExecutables) {
+      try {
+        const { stdout } = await execPromise(
+          `tasklist /FI "IMAGENAME eq ${executable}" /FO CSV /NH`,
+          { encoding: 'utf8' }
+        )
+        const lines = stdout.split('\n').filter((line) => line.includes('.exe'))
+        for (const line of lines) {
+          const parts = line.split(',')
+          if (parts.length >= 2) {
+            const pid = parseInt(parts[1].replace(/"/g, '').trim())
+            if (!isNaN(pid) && pid !== process.pid) {
               await terminateProcess(pid)
             }
           }
-        } catch (parseError) {
-          managerLogger.warn('Failed to parse process list JSON:', parseError)
-          await fallbackTextParsing(stdout)
         }
+      } catch {
+        // ignore
       }
-    } catch (error) {
-      managerLogger.warn('Failed to check mihomo processes:', error)
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 500))
   } catch (error) {
     managerLogger.error('Windows named pipe cleanup failed:', error)
   }
@@ -63,19 +57,6 @@ async function terminateProcess(pid: number): Promise<void> {
   } catch (error: unknown) {
     if ((error as { code?: string })?.code !== 'ESRCH') {
       managerLogger.warn(`Failed to terminate process ${pid}:`, error)
-    }
-  }
-}
-
-async function fallbackTextParsing(stdout: string): Promise<void> {
-  const lines = stdout.split('\n').filter((line) => line.includes('mihomo'))
-  for (const line of lines) {
-    const match = line.match(/(\d+)/)
-    if (match) {
-      const pid = parseInt(match[1])
-      if (pid !== process.pid) {
-        await terminateProcess(pid)
-      }
     }
   }
 }
