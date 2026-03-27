@@ -14,7 +14,7 @@ import {
   initCoreWatcher
 } from './core/manager'
 import { createTray } from './resolve/tray'
-import { init, initBasic, safeShowErrorBox } from './utils/init'
+import { init, initBasic, safeShowErrorBox, checkPowerShellVersion } from './utils/init'
 import { initShortcut } from './resolve/shortcut'
 import { initProfileUpdater } from './core/profileUpdater'
 import { startMonitor } from './resolve/trafficMonitor'
@@ -46,6 +46,7 @@ if (!gotTheLock) {
 }
 
 async function initApp(): Promise<void> {
+  await checkPowerShellVersion()
   await fixUserDataPermissions()
 }
 

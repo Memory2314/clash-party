@@ -138,6 +138,30 @@ async function initConfig(): Promise<void> {
   )
 }
 
+export async function checkPowerShellVersion(): Promise<void> {
+  if (process.platform !== 'win32') return
+
+  const execPromise = promisify(exec)
+  try {
+    const { stdout } = await execPromise(
+      'powershell -NoProfile -Command "$PSVersionTable.PSVersion.Major"',
+      { encoding: 'utf8', timeout: 5000 }
+    )
+    const major = parseInt(stdout.trim(), 10)
+    if (!isNaN(major) && major < 7) {
+      const isZh = app.getLocale().startsWith('zh')
+      const title = isZh ? '需要更新 PowerShell' : 'PowerShell Update Required'
+      const message = isZh
+        ? `检测到您的 PowerShell 版本为 ${major}.x，部分功能需要 PowerShell 5.1 才能正常运行。\n\n请访问 Microsoft 官网下载并安装 Windows Management Framework 5.1。`
+        : `Detected PowerShell version ${major}.x. Some features require PowerShell 5.1 to work correctly.\n\nPlease download and install Windows Management Framework 5.1 from the Microsoft website.`
+      dialog.showErrorBox(title, message)
+      process.exit(0)
+    }
+  } catch {
+    // ignore
+  }
+}
+
 async function killOldMihomoProcesses(): Promise<void> {
   if (process.platform !== 'win32') return
 
