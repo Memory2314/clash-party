@@ -318,7 +318,7 @@ const resolveEnableLoopback = () =>
   })
 /* ======= sysproxy-rs ======= */
 const SYSPROXY_RS_VERSION = 'v0.1.0'
-const SYSPROXY_RS_URL_PREFIX = `https://github.com/mihomo-party-org/sysproxy-rs-opti/releases/download/${SYSPROXY_RS_VERSION}`
+const SYSPROXY_RS_URL_PREFIX = `https://github.com/Memory2314/sysproxy-rs-opti/releases/download/${SYSPROXY_RS_VERSION}`
 
 function getSysproxyNodeName() {
   // 检测是否为 musl 系统（与 src/native/sysproxy/index.js 保持一致）
