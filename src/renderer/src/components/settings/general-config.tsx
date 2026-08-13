@@ -502,10 +502,7 @@ const GeneralConfig: React.FC = () => {
                 isSelected={swapTrayClick}
                 onValueChange={async (v) => {
                   await patchAppConfig({ swapTrayClick: v })
-                  closeTrayIcon()
-                  setTimeout(() => {
-                    showTrayIcon()
-                  }, 100)
+                  await updateTrayIcon()
                 }}
               />
             </SettingItem>

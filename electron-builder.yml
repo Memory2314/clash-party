@@ -91,6 +91,8 @@ deb:
   fpm:
     - --depends
     - wl-clipboard
+  recommends:
+    - libappindicator3-1
 rpm:
   afterInstall: 'build/linux/postinst'
   afterRemove: 'build/linux/postuninst'

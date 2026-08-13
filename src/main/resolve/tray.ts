@@ -46,6 +46,8 @@ import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
 
 export let tray: Tray | null = null
 let trayMenu: Menu | null = null
+let trayIconUpdateListenerRegistered = false
+let updateTrayMenuListenerRegistered = false
 // macOS 流量显示状态，避免异步读取配置导致的时序问题
 let macTrafficIconEnabled = false
 type TrayIconStatus = 'white' | 'blue' | 'green' | 'red'
@@ -402,7 +404,10 @@ export const buildContextMenu = async (): Promise<Menu> => {
 }
 
 export async function createTray(): Promise<void> {
-  const { useDockIcon = true, swapTrayClick = false } = await getAppConfig()
+  const { useDockIcon = true } = await getAppConfig()
+  if (tray) {
+    return
+  }
   if (process.platform === 'linux') {
     tray = new Tray(pngIcon)
     trayMenu = await buildContextMenu()
@@ -425,25 +430,27 @@ export async function createTray(): Promise<void> {
     if (!useDockIcon) {
       hideDockIcon()
     }
-    // 移除旧监听器防止累积
-    ipcMain.removeAllListeners('trayIconUpdate')
-    ipcMain.on('trayIconUpdate', async (_, png: string, enabled: boolean) => {
-      macTrafficIconEnabled = enabled
-      const appConfig = await getAppConfig()
-      const status = await getTrayIconStatus()
-      const customIcon = createCustomTrayImageForStatus(appConfig, status)
-      if (customIcon) {
-        tray?.setImage(customIcon)
-        await updateTrayToolTip(undefined, undefined, true)
-        return
-      }
-      const image = nativeImage.createFromDataURL(png).resize({ height: 16 })
-      image.setTemplateImage(true)
-      tray?.setImage(image)
-      await updateTrayToolTip(undefined, undefined, false)
-    })
+    if (!trayIconUpdateListenerRegistered) {
+      ipcMain.on('trayIconUpdate', async (_, png: string, enabled: boolean) => {
+        macTrafficIconEnabled = enabled
+        const appConfig = await getAppConfig()
+        const status = await getTrayIconStatus()
+        const customIcon = createCustomTrayImageForStatus(appConfig, status)
+        if (customIcon) {
+          tray?.setImage(customIcon)
+          await updateTrayToolTip(undefined, undefined, true)
+          return
+        }
+        const image = nativeImage.createFromDataURL(png).resize({ height: 16 })
+        image.setTemplateImage(true)
+        tray?.setImage(image)
+        await updateTrayToolTip(undefined, undefined, false)
+      })
+      trayIconUpdateListenerRegistered = true
+    }
     // macOS 默认行为：左键显示窗口，右键显示菜单
     tray?.addListener('click', async () => {
+      const { swapTrayClick = false } = await getAppConfig()
       if (swapTrayClick) {
         await updateTrayMenu()
       } else {
@@ -451,6 +458,7 @@ export async function createTray(): Promise<void> {
       }
     })
     tray?.addListener('right-click', async () => {
+      const { swapTrayClick = false } = await getAppConfig()
       if (swapTrayClick) {
         triggerMainWindow()
       } else {
@@ -460,6 +468,7 @@ export async function createTray(): Promise<void> {
   }
   if (process.platform === 'win32') {
     tray?.addListener('click', async () => {
+      const { swapTrayClick = false } = await getAppConfig()
       if (swapTrayClick) {
         await updateTrayMenu()
       } else {
@@ -467,6 +476,7 @@ export async function createTray(): Promise<void> {
       }
     })
     tray?.addListener('right-click', async () => {
+      const { swapTrayClick = false } = await getAppConfig()
       if (swapTrayClick) {
         triggerMainWindow()
       } else {
@@ -476,17 +486,19 @@ export async function createTray(): Promise<void> {
   }
   if (process.platform === 'linux') {
     tray?.addListener('click', async () => {
+      const { swapTrayClick = false } = await getAppConfig()
       if (swapTrayClick) {
         await updateTrayMenu()
       } else {
         triggerMainWindow()
       }
     })
-    // 移除旧监听器防止累积
-    ipcMain.removeAllListeners('updateTrayMenu')
-    ipcMain.on('updateTrayMenu', async () => {
-      await updateTrayMenu()
-    })
+    if (!updateTrayMenuListenerRegistered) {
+      ipcMain.on('updateTrayMenu', async () => {
+        await updateTrayMenu()
+      })
+      updateTrayMenuListenerRegistered = true
+    }
   }
 }
 
