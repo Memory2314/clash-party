@@ -712,7 +712,7 @@ function parseSubinfo(str: string): ISubscriptionUserInfo {
   const obj = {} as ISubscriptionUserInfo
   parts.forEach((part) => {
     const [key, value] = part.split('=')
-    obj[key] = parseInt(value)
+    obj[key] = Number(value)
   })
   return obj
 }
