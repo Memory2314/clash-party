@@ -224,7 +224,7 @@
   "mihomo.memory": "Memory Usage",
   "mihomo.coreVersion": "Core Version",
   "mihomo.upgradeCore": "Upgrade Core",
-  "mihomo.CoreAuthLost": "Core Authorization Lost",
+  "mihomo.coreAuthLost": "Core Authorization Lost",
   "mihomo.coreUpgradeSuccess": "Core upgrade successful. If you want to use virtual network card (Tun), please go to the virtual network card page to manually authorize the Core again",
   "mihomo.alreadyLatestVersion": "Already Latest Version",
   "mihomo.selectCoreVersion": "Select Core Version",
