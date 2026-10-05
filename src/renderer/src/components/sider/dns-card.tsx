@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, Spinner, Tooltip } from '@heroui/react'
+import { Button, Card, CardBody, CardFooter, Tooltip } from '@heroui/react'
 import { toast } from '@renderer/components/base/toast'
 import BorderSwitch from '@renderer/components/base/border-switch'
 import BaseConfirmModal from '@renderer/components/base/base-confirm-modal'
@@ -125,15 +125,11 @@ const DNSCard: React.FC<Props> = (props) => {
                 className={`${match ? 'text-primary-foreground' : 'text-foreground'} text-[24px] font-bold`}
               />
             </Button>
-            <div className="flex items-center">
-              {applying && <Spinner size="sm" color={match ? 'white' : 'primary'} />}
-              <BorderSwitch
-                isShowBorder={match && (operationMode === 'simple' ? simpleDnsEnabled : controlDns)}
-                isSelected={operationMode === 'simple' ? simpleDnsEnabled : controlDns}
-                isDisabled={applying}
-                onValueChange={onChange}
-              />
-            </div>
+            <BorderSwitch
+              isShowBorder={match && (operationMode === 'simple' ? simpleDnsEnabled : controlDns)}
+              isSelected={operationMode === 'simple' ? simpleDnsEnabled : controlDns}
+              onValueChange={onChange}
+            />
           </div>
         </CardBody>
         <CardFooter className="pt-1">
