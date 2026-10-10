@@ -622,13 +622,16 @@ function setupCoreListeners(
 
   const completeCoreStartup = async (): Promise<void> => {
     try {
-      mainWindow?.webContents.send('groupsUpdated')
-      mainWindow?.webContents.send('rulesUpdated')
       await uploadRuntimeConfigIfChanged()
     } catch (error) {
       managerLogger.warn('Failed to sync runtime config to Gist', error)
     }
-    await patchMihomoConfig({ 'log-level': logLevel })
+    try {
+      await patchMihomoConfig({ 'log-level': logLevel })
+    } finally {
+      mainWindow?.webContents.send('groupsUpdated')
+      mainWindow?.webContents.send('rulesUpdated')
+    }
   }
 
   proc.once('error', (error) => {
