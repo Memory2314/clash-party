@@ -155,7 +155,7 @@ const UsageCard: React.FC<Props> = (props) => {
                         />
                         <div className="text-right text-xs mt-0.5 opacity-70">
                           {Expire
-                            ? (isExpired ? '⚠ ' : '') + dayjs.unix(Expire).format('YYYY-MM-DD')
+                            ? (isExpired ? '⚠ ' : '') + new Date(Expire * 1000).toLocaleDateString()
                             : t('sider.cards.neverExpire')}
                         </div>
                       </div>

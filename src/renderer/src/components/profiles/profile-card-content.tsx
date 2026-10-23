@@ -48,7 +48,7 @@ const ProfileCardContent: React.FC<Props> = (props) => {
                 }}
               >
                 {extra.expire
-                  ? dayjs.unix(extra.expire).format('YYYY-MM-DD')
+                  ? new Date(extra.expire * 1000).toLocaleDateString()
                   : t('profiles.neverExpire')}
               </Button>
             ) : (

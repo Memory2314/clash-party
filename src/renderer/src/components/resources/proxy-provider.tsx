@@ -249,7 +249,7 @@ const ProxyProvider: React.FC = () => {
             >
               <div className="h-[32px] leading-[32px] text-foreground-500">
                 {provider.subscriptionInfo.Expire
-                  ? dayjs.unix(provider.subscriptionInfo.Expire).format('YYYY-MM-DD')
+                  ? new Date(provider.subscriptionInfo.Expire * 1000).toLocaleDateString()
                   : t('profiles.neverExpire')}
               </div>
             </SettingItem>
