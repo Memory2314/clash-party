@@ -223,11 +223,11 @@ const DNS: React.FC = () => {
                   values.nameserverPolicy.map(({ domain, value }) => [domain, value])
                 )
               }
-              const result = { dns: dnsConfig }
-              if (values.useHosts) {
-                result['hosts'] = Object.fromEntries(
-                  values.hosts.map(({ domain, value }) => [domain, value])
-                )
+              const result = {
+                dns: dnsConfig,
+                hosts: values.useHosts
+                  ? Object.fromEntries(values.hosts.map(({ domain, value }) => [domain, value]))
+                  : {}
               }
               onSave(result)
             }}
